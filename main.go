@@ -11,6 +11,7 @@ import (
 
 var cfg common.Config
 
+// LoadConfig function
 func LoadConfig() {
 	fmt.Println("Loading config file...")
 
@@ -22,6 +23,8 @@ func LoadConfig() {
 	}
 }
 
+// Go init function
+// Loading config file
 func init() {
 	fmt.Println("Initializing...")
 
@@ -29,9 +32,7 @@ func init() {
 }
 
 func main() {
-	fmt.Println("Hello, World!")
-	fmt.Println(time.Now().Format("2006-01-02T15:04:05"))
-
+	fmt.Println("Starting collectors...")
 	var logcollector []collectors.LogCollector
 	logcollector = append(logcollector, collectors.Newnginx_log(cfg))
 
@@ -64,5 +65,6 @@ func main() {
 	// Error handling everywhere - Almost Done
 	// Add a test module
 	// Add a log module
+	// add comments
 
 }

@@ -6,8 +6,10 @@ import (
 	"net/http"
 )
 
+// Http_client function
+// This function is used to make HTTP requests to NGINX
+// It returns the body of the response as string, the response itself and an error
 func Http_client(url string) (string, *http.Response, error) {
-	//req, err := http.NewRequest("GET", "http://localhost/nginx_status", nil)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		fmt.Println("Fail to create HTTP request to NGINX")

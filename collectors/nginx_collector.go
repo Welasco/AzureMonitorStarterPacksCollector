@@ -10,6 +10,7 @@ import (
 	"github.com/Welasco/AzureMonitorStarterPacksCollector/common"
 )
 
+// Nginx_log struct definition for the csv file
 type nginx_properties struct {
 	active_connections string
 	server_accepts     string
@@ -20,6 +21,8 @@ type nginx_properties struct {
 	waiting            string
 }
 
+// Implementing the interface LogCollector CollectLog function
+// CollectLog receives a telemetry information from NGINX module and processes it.
 func (nlog *Nginx_log) CollectLog(bodystr string) error {
 
 	// Regular expression patterns
@@ -33,7 +36,6 @@ func (nlog *Nginx_log) CollectLog(bodystr string) error {
 	rwwMatches := rwwPattern.FindStringSubmatch(bodystr)
 
 	// popupate the struct Nginx_log
-	// nginx_log := &Nginx_log{}
 	nginx_properties := nginx_properties{
 		active_connections: activeConnMatches[1],
 		server_accepts:     serviceConnMatches[1],
@@ -50,10 +52,11 @@ func (nlog *Nginx_log) CollectLog(bodystr string) error {
 	return nil
 }
 
+// write_to_csv file function
+// It writes the telemetry information from NGINX module to a csv file
 func (nlog *Nginx_log) write_to_csv(nginx_log *nginx_properties) {
 	file, err := os.OpenFile(nlog.LogPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		//log.Fatal(err)
 		fmt.Println("Unable to open file", nlog.LogPath)
 		fmt.Println(err)
 		fmt.Println("Stopping NGINX collector for now...")
@@ -71,6 +74,8 @@ func (nlog *Nginx_log) write_to_csv(nginx_log *nginx_properties) {
 // Running or Stopped
 var shouldStop bool
 
+// Implementing the interface LogCollector Start function
+// It initialize the main loop to collect the telemetry information from NGINX module
 func (nlog *Nginx_log) Start() error {
 	shouldStop = false
 	for !shouldStop {
@@ -96,11 +101,15 @@ func (nlog *Nginx_log) Start() error {
 	return nil
 }
 
+// Implementing the interface LogCollector Stop function
+// It should gracefully shut down the collector.
 func (nlog *Nginx_log) Stop() error {
 	shouldStop = true
 	return nil
 }
 
+// Implementing the interface LogCollector GetStatus function
+// This can be used to check if the collector is running or stopped.
 func (nlog *Nginx_log) GetStatus() string {
 	if !shouldStop {
 		return "Running"
@@ -110,6 +119,8 @@ func (nlog *Nginx_log) GetStatus() string {
 	return "Unknown"
 }
 
+// Constructor for Nginx Collector function
+// It returns a pointer to the Nginx_log struct with all the methods implementation of the interface LogCollector
 func Newnginx_log(cfg common.Config) *Nginx_log {
 	var nlog Nginx_log = Nginx_log{
 		LogPath:           cfg.NginxCollector.LogPath,
