@@ -45,17 +45,21 @@ func (nlog *Nginx_log) CollectLog(bodystr string) error {
 	}
 
 	// write to csv file
-	write_to_csv(&nginx_properties)
+	nlog.write_to_csv(&nginx_properties)
 
 	return nil
 }
 
-func write_to_csv(nginx_log *nginx_properties) {
-	file, err := os.OpenFile("nginx_metrics.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+func (nlog *Nginx_log) write_to_csv(nginx_log *nginx_properties) {
+	file, err := os.OpenFile(nlog.LogPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		//log.Fatal(err)
+		fmt.Println("Unable to open file", nlog.LogPath)
 		fmt.Println(err)
+		fmt.Println("Stopping NGINX collector for now...")
+		nlog.Stop()
 	}
+
 	defer file.Close()
 	writer := csv.NewWriter(file)
 	defer writer.Flush()
@@ -70,15 +74,23 @@ var shouldStop bool
 func (nlog *Nginx_log) Start() error {
 	shouldStop = false
 	for !shouldStop {
-		// need to implement a configuration file to get the url and the specifics of the collector
-		req, err := common.Http_client("http://localhost/nginx_status")
+		respbody, resp, err := common.Http_client(nlog.Url)
 		if err != nil {
+			fmt.Println("Failed to connect to NGINX", nlog.Url)
 			fmt.Println(err)
+			fmt.Println("Stopping NGINX collector for now...")
+			nlog.Stop()
 			return err
 		}
-
-		nlog.CollectLog(req)
-		time.Sleep(5 * time.Second)
+		if resp.StatusCode != 200 {
+			fmt.Println("Failed to connect to NGINX", nlog.Url)
+			fmt.Println("Status code:", resp.StatusCode)
+			fmt.Println("Stopping NGINX collector for now...")
+			nlog.Stop()
+			return err
+		}
+		nlog.CollectLog(respbody)
+		time.Sleep(time.Duration(nlog.ScrapeIntervalsec) * time.Second)
 	}
 
 	return nil
@@ -98,7 +110,11 @@ func (nlog *Nginx_log) GetStatus() string {
 	return "Unknown"
 }
 
-func Newnginx_log() *Nginx_log {
-	var nlog Nginx_log = Nginx_log{}
+func Newnginx_log(cfg common.Config) *Nginx_log {
+	var nlog Nginx_log = Nginx_log{
+		LogPath:           cfg.NginxCollector.LogPath,
+		Url:               cfg.NginxCollector.Url,
+		ScrapeIntervalsec: cfg.NginxCollector.ScrapeIntervalsec,
+	}
 	return &nlog
 }
