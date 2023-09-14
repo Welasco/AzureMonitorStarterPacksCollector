@@ -6,6 +6,7 @@ import (
 
 	"github.com/Welasco/AzureMonitorStarterPacksCollector/collectors"
 	"github.com/Welasco/AzureMonitorStarterPacksCollector/common"
+	logger "github.com/Welasco/AzureMonitorStarterPacksCollector/common/logger"
 	"gopkg.in/gcfg.v1"
 )
 
@@ -29,10 +30,13 @@ func init() {
 	fmt.Println("Initializing...")
 
 	LoadConfig()
+	logger.Init(cfg.Main.LogPath)
 }
 
 func main() {
-	fmt.Println("Starting collectors...")
+	//logger.Info("Starting collectors...")
+	logger.Info("Starting collectors...")
+
 	var logcollector []collectors.LogCollector
 	logcollector = append(logcollector, collectors.Newnginx_log(cfg))
 
@@ -40,13 +44,13 @@ func main() {
 		go collector.Start()
 	}
 
-	fmt.Println("Sleeping for 10 seconds GetStatus")
+	logger.Info("Sleeping for 10 seconds GetStatus")
 	time.Sleep(10 * time.Second)
 	for _, collector := range logcollector {
-		fmt.Println(collector.GetStatus())
+		logger.Info(collector.GetStatus())
 	}
 
-	fmt.Println("Sleeping for 50 seconds before stopping the collector")
+	logger.Info("Sleeping for 50 seconds before stopping the collector")
 	time.Sleep(50 * time.Second)
 
 	for _, collector := range logcollector {
@@ -54,17 +58,18 @@ func main() {
 	}
 
 	for _, collector := range logcollector {
-		fmt.Println(collector.GetStatus())
+		logger.Info(collector.GetStatus())
 	}
 
-	fmt.Println("Sleeping for 50 seconds after stop the collector")
+	logger.Info("Sleeping for 50 seconds after stop the collector")
 	time.Sleep(50 * time.Second)
 
 	// Add config file for all collectors - Done
 	// Config file must support the specifics of each collector, URL, File, etc - Done
-	// Error handling everywhere - Almost Done
+	// Error handling everywhere - Almost Done still need to test at the go routine level to catch the error during the start of the collector
+	// add comments - Done
 	// Add a test module
-	// Add a log module
-	// add comments
+	// Add a log module - Done
+	// graceful shutdown
 
 }

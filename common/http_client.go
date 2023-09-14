@@ -1,9 +1,10 @@
 package common
 
 import (
-	"fmt"
 	"io"
 	"net/http"
+
+	logger "github.com/Welasco/AzureMonitorStarterPacksCollector/common/logger"
 )
 
 // Http_client function
@@ -12,8 +13,8 @@ import (
 func Http_client(url string) (string, *http.Response, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		fmt.Println("Fail to create HTTP request to NGINX")
-		fmt.Println(err)
+		logger.Error("Fail to create HTTP request to NGINX")
+		logger.Error(err)
 		return "", &http.Response{}, err
 	}
 
@@ -27,7 +28,7 @@ func Http_client(url string) (string, *http.Response, error) {
 
 	body, _ := io.ReadAll(resp.Body)
 	bodystr := string(body)
-	fmt.Println(bodystr)
+	logger.Info("HTTP Boddy:\n", bodystr)
 
 	return bodystr, resp, err
 

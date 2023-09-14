@@ -2,12 +2,12 @@ package collectors
 
 import (
 	"encoding/csv"
-	"fmt"
 	"os"
 	"regexp"
 	"time"
 
 	"github.com/Welasco/AzureMonitorStarterPacksCollector/common"
+	logger "github.com/Welasco/AzureMonitorStarterPacksCollector/common/logger"
 )
 
 // Nginx_log struct definition for the csv file
@@ -57,9 +57,9 @@ func (nlog *Nginx_log) CollectLog(bodystr string) error {
 func (nlog *Nginx_log) write_to_csv(nginx_log *nginx_properties) {
 	file, err := os.OpenFile(nlog.LogPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		fmt.Println("Unable to open file", nlog.LogPath)
-		fmt.Println(err)
-		fmt.Println("Stopping NGINX collector for now...")
+		logger.Error("Unable to open file", nlog.LogPath)
+		logger.Error(err)
+		logger.Error("Stopping NGINX collector for now...")
 		nlog.Stop()
 	}
 
@@ -77,20 +77,21 @@ var shouldStop bool
 // Implementing the interface LogCollector Start function
 // It initialize the main loop to collect the telemetry information from NGINX module
 func (nlog *Nginx_log) Start() error {
+	logger.Info("START - Starting NGINX collector...", nlog.Url)
 	shouldStop = false
 	for !shouldStop {
 		respbody, resp, err := common.Http_client(nlog.Url)
 		if err != nil {
-			fmt.Println("Failed to connect to NGINX", nlog.Url)
-			fmt.Println(err)
-			fmt.Println("Stopping NGINX collector for now...")
+			logger.Error("Failed to connect to NGINX", nlog.Url)
+			logger.Error(err)
+			logger.Error("Stopping NGINX collector for now...")
 			nlog.Stop()
 			return err
 		}
 		if resp.StatusCode != 200 {
-			fmt.Println("Failed to connect to NGINX", nlog.Url)
-			fmt.Println("Status code:", resp.StatusCode)
-			fmt.Println("Stopping NGINX collector for now...")
+			logger.Error("Failed to connect to NGINX", nlog.Url)
+			logger.Error("Status code:", resp.StatusCode)
+			logger.Error("Stopping NGINX collector for now...")
 			nlog.Stop()
 			return err
 		}
