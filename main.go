@@ -90,15 +90,15 @@ func main() {
 
 	// Add config file for all collectors - Done
 	// Config file must support the specifics of each collector, URL, File, etc - Done
-	// Error handling everywhere - Almost Done still need to test at the go routine level to catch the error during the start of the collector
+	// Error handling everywhere - Almost Done still need to test at the go routine level to catch the error during the start of the collector *** Check with Alex where we should handle it in the main or in the collector
 	// add comments - Done
 	// Add a log module - Done
 	// graceful shutdown - Done
 	// add multi site nginx support
 	// add log level
 	// Add a test module
-	// Build
-	// deployment script/deb package
+	// Build the bin file
+	// Create a deployment script/deb package
 
 }
 
