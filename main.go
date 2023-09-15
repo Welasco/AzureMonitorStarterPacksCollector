@@ -44,7 +44,16 @@ func main() {
 
 	// Create a slice of LogCollector interface
 	var logcollector []collectors.LogCollector
-	logcollector = append(logcollector, collectors.Newnginx_log(cfg))
+
+	for siteName, website := range cfg.NginxCollectorWebsite {
+		logcollector = append(logcollector, collectors.Newnginx_log(siteName, website, cfg.NginxCollector.LogPath))
+	}
+
+	//logcollector = append(logcollector, collectors.Newnginx_log(&cfg))
+
+	//////////////////////////
+	//////////////////////////
+	//////////////////////////
 
 	// Graceful shutdown signals
 	ctx, stop := signal.NotifyContext(context.Background(),
@@ -55,7 +64,9 @@ func main() {
 	// WaitGroup to wait for all goroutines to finish
 	var wg sync.WaitGroup
 	wg.Add(1)
-	// Call gracefullShutdown which gets executed when the signals SIGTERM OR SIGQUIT are received. I happens at this line under the function gracefulShutdown <-ctx.Done()
+
+	// Call gracefullShutdown which gets executed when the signals SIGTERM OR SIGQUIT are received.
+	// It happens at this line under the function gracefulShutdown <-ctx.Done()
 	go gracefulShutdown(ctx, stop, &logcollector, &wg)
 
 	// Start all collectors and add them to the WaitGroup

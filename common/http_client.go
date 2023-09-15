@@ -28,7 +28,7 @@ func Http_client(url string) (string, *http.Response, error) {
 
 	body, _ := io.ReadAll(resp.Body)
 	bodystr := string(body)
-	logger.Info("HTTP Boddy:\n", bodystr)
+	logger.Debug("HTTP Boddy of URL", url, ":\n", bodystr)
 
 	return bodystr, resp, err
 

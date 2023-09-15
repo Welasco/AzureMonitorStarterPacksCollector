@@ -68,7 +68,7 @@ func (nlog *Nginx_log) write_to_csv(nginx_log *nginx_properties) {
 	writer := csv.NewWriter(file)
 	defer writer.Flush()
 	//writer.Write([]string{"Active_connections", "Server_accepts", "Server_handled", "Server_requests", "Reading", "Writing", "Waiting"})
-	writer.Write([]string{time.Now().Format("2006-01-02T15:04:05"), nginx_log.active_connections, nginx_log.server_accepts, nginx_log.server_handled, nginx_log.server_requests, nginx_log.reading, nginx_log.writing, nginx_log.waiting})
+	writer.Write([]string{time.Now().Format("2006-01-02T15:04:05"), nlog.SiteName, nginx_log.active_connections, nginx_log.server_accepts, nginx_log.server_handled, nginx_log.server_requests, nginx_log.reading, nginx_log.writing, nginx_log.waiting})
 }
 
 // Variable to control the status of the collector
@@ -78,7 +78,7 @@ var shouldStop bool
 // Implementing the interface LogCollector Start function
 // It initialize the main loop to collect the telemetry information from NGINX module
 func (nlog *Nginx_log) Start(wg *sync.WaitGroup) error {
-	logger.Info("START - Starting NGINX collector...", nlog.Url)
+	logger.Info("START - Starting NGINX ", nlog.SiteName, " collector...", nlog.Url)
 	shouldStop = false
 	for !shouldStop {
 		respbody, resp, err := common.Http_client(nlog.Url)
@@ -107,7 +107,7 @@ func (nlog *Nginx_log) Start(wg *sync.WaitGroup) error {
 // Implementing the interface LogCollector Stop function
 // It should gracefully shut down the collector.
 func (nlog *Nginx_log) Stop() error {
-	logger.Info("STOP - Stopping NGINX collector...")
+	logger.Info("STOP - Stopping NGINX collector...", nlog.SiteName)
 	shouldStop = true
 	return nil
 }
@@ -125,11 +125,12 @@ func (nlog *Nginx_log) GetStatus() string {
 
 // Constructor for Nginx Collector function
 // It returns a pointer to the Nginx_log struct with all the methods implementation of the interface LogCollector
-func Newnginx_log(cfg common.Config) *Nginx_log {
+func Newnginx_log(siteName string, cfg *common.WebSite, logPath string) *Nginx_log {
 	var nlog Nginx_log = Nginx_log{
-		LogPath:           cfg.NginxCollector.LogPath,
-		Url:               cfg.NginxCollector.Url,
-		ScrapeIntervalsec: cfg.NginxCollector.ScrapeIntervalsec,
+		SiteName:          siteName,
+		LogPath:           logPath,
+		Url:               cfg.Url,
+		ScrapeIntervalsec: cfg.ScrapeIntervalsec,
 	}
 	return &nlog
 }
