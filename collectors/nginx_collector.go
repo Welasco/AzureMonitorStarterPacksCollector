@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"os"
 	"regexp"
+	"sync"
 	"time"
 
 	"github.com/Welasco/AzureMonitorStarterPacksCollector/common"
@@ -76,7 +77,7 @@ var shouldStop bool
 
 // Implementing the interface LogCollector Start function
 // It initialize the main loop to collect the telemetry information from NGINX module
-func (nlog *Nginx_log) Start() error {
+func (nlog *Nginx_log) Start(wg *sync.WaitGroup) error {
 	logger.Info("START - Starting NGINX collector...", nlog.Url)
 	shouldStop = false
 	for !shouldStop {
@@ -99,12 +100,14 @@ func (nlog *Nginx_log) Start() error {
 		time.Sleep(time.Duration(nlog.ScrapeIntervalsec) * time.Second)
 	}
 
+	wg.Done()
 	return nil
 }
 
 // Implementing the interface LogCollector Stop function
 // It should gracefully shut down the collector.
 func (nlog *Nginx_log) Stop() error {
+	logger.Info("STOP - Stopping NGINX collector...")
 	shouldStop = true
 	return nil
 }

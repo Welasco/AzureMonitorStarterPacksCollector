@@ -1,7 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"os"
+	"os/signal"
+	"sync"
+	"syscall"
 	"time"
 
 	"github.com/Welasco/AzureMonitorStarterPacksCollector/collectors"
@@ -40,30 +45,44 @@ func main() {
 	var logcollector []collectors.LogCollector
 	logcollector = append(logcollector, collectors.Newnginx_log(cfg))
 
-	for _, collector := range logcollector {
-		go collector.Start()
-	}
+	// Graceful shutdown
+	ctx, stop := signal.NotifyContext(context.Background(),
+		os.Interrupt,
+		syscall.SIGTERM,
+		syscall.SIGQUIT)
 
-	logger.Info("Sleeping for 10 seconds GetStatus")
-	time.Sleep(10 * time.Second)
-	for _, collector := range logcollector {
-		logger.Info(collector.GetStatus())
-	}
-
-	logger.Info("Sleeping for 50 seconds before stopping the collector")
-	time.Sleep(50 * time.Second)
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go gracefulShutdown(ctx, stop, &logcollector, &wg)
 
 	for _, collector := range logcollector {
-		collector.Stop()
+		wg.Add(1)
+		go collector.Start(&wg)
 	}
+
+	logger.Info("Sleeping for 11 seconds GetStatus")
+	time.Sleep(11 * time.Second)
+	for _, collector := range logcollector {
+		logger.Info("Current status:", collector.GetStatus())
+	}
+
+	// logger.Info("Sleeping for 9 seconds before stopping the collector")
+	// time.Sleep(9 * time.Second)
+
+	// for _, collector := range logcollector {
+	// 	collector.Stop()
+	// }
 
 	for _, collector := range logcollector {
-		logger.Info(collector.GetStatus())
+		logger.Info("Current status:", collector.GetStatus())
 	}
 
-	logger.Info("Sleeping for 50 seconds after stop the collector")
-	time.Sleep(50 * time.Second)
+	logger.Info("Sleeping for 5 seconds after stop the collector")
+	time.Sleep(5 * time.Second)
 
+	logger.Info("Reach Wait() Exiting...")
+	wg.Wait()
+	fmt.Println("Main done")
 	// Add config file for all collectors - Done
 	// Config file must support the specifics of each collector, URL, File, etc - Done
 	// Error handling everywhere - Almost Done still need to test at the go routine level to catch the error during the start of the collector
@@ -71,5 +90,17 @@ func main() {
 	// Add a test module
 	// Add a log module - Done
 	// graceful shutdown
+	// add multi site nginx support
 
+}
+
+func gracefulShutdown(ctx context.Context, stop context.CancelFunc, logcollector *[]collectors.LogCollector, wg *sync.WaitGroup) {
+	<-ctx.Done()
+
+	for _, collector := range *logcollector {
+		collector.Stop()
+	}
+	logger.Info("Shutting down...")
+	stop()
+	wg.Done()
 }

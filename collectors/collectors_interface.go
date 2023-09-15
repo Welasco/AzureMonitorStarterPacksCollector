@@ -1,10 +1,12 @@
 package collectors
 
+import "sync"
+
 // LogCollector defines the methods that a log collector should implement.
 type LogCollector interface {
 	// Start starts the log collection process.
 	// It should initialize any necessary resources and prepare to receive log data.
-	Start() error
+	Start(wg *sync.WaitGroup) error
 
 	// Stop stops the log collection process and releases any allocated resources.
 	// It should gracefully shut down the collector.
