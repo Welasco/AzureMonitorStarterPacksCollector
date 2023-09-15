@@ -82,7 +82,7 @@ func main() {
 
 	logger.Info("Reach Wait() Exiting...")
 	wg.Wait()
-	fmt.Println("Main done")
+	fmt.Println("Main done. Exiting...")
 	// Add config file for all collectors - Done
 	// Config file must support the specifics of each collector, URL, File, etc - Done
 	// Error handling everywhere - Almost Done still need to test at the go routine level to catch the error during the start of the collector
@@ -96,11 +96,11 @@ func main() {
 
 func gracefulShutdown(ctx context.Context, stop context.CancelFunc, logcollector *[]collectors.LogCollector, wg *sync.WaitGroup) {
 	<-ctx.Done()
-
+	logger.Info("Received shutdown signal...")
 	for _, collector := range *logcollector {
 		collector.Stop()
 	}
-	logger.Info("Shutting down...")
+	logger.Info("Shut down!")
 	stop()
 	wg.Done()
 }
