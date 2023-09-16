@@ -40,7 +40,8 @@ func Init(file string, llevel string) {
 	}
 
 	l.SetOutput(logFile)
-	l.SetFlags(log.Lshortfile | log.LstdFlags)
+	//l.SetFlags(log.Lshortfile | log.LstdFlags)
+	l.SetFlags(log.LstdFlags)
 }
 
 func Error(msg ...interface{}) {
