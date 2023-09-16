@@ -7,7 +7,6 @@ import (
 	"os/signal"
 	"sync"
 	"syscall"
-	"time"
 
 	"github.com/Welasco/AzureMonitorStarterPacksCollector/collectors"
 	"github.com/Welasco/AzureMonitorStarterPacksCollector/common"
@@ -19,8 +18,6 @@ var cfg common.Config
 
 // LoadConfig function
 func LoadConfig() {
-	fmt.Println("Loading config file...")
-
 	var err error
 	if err = gcfg.ReadFileInto(&cfg, "config_collector.ini"); err != nil {
 		fmt.Println("Unable to open or unrecognized entries at config_collector.ini")
@@ -32,10 +29,9 @@ func LoadConfig() {
 // Go init function
 // Loading config file
 func init() {
-	fmt.Println("Initializing...")
 
 	LoadConfig()
-	logger.Init(cfg.Main.LogPath)
+	logger.Init(cfg.Main.LogPath, cfg.Main.LogLevel)
 }
 
 func main() {
@@ -49,11 +45,8 @@ func main() {
 		logcollector = append(logcollector, collectors.Newnginx_log(siteName, website, cfg.NginxCollector.LogPath))
 	}
 
+	// Sample code to add a collector
 	//logcollector = append(logcollector, collectors.Newnginx_log(&cfg))
-
-	//////////////////////////
-	//////////////////////////
-	//////////////////////////
 
 	// Graceful shutdown signals
 	ctx, stop := signal.NotifyContext(context.Background(),
@@ -75,11 +68,11 @@ func main() {
 		go collector.Start(&wg)
 	}
 
-	logger.Info("Sleeping for 11 seconds GetStatus")
-	time.Sleep(11 * time.Second)
-	for _, collector := range logcollector {
-		logger.Info("Current status:", collector.GetStatus())
-	}
+	// logger.Info("Sleeping for 11 seconds GetStatus")
+	// time.Sleep(11 * time.Second)
+	// for _, collector := range logcollector {
+	// 	logger.Info("Current status:", collector.GetStatus())
+	// }
 
 	// logger.Info("Sleeping for 9 seconds before stopping the collector")
 	// time.Sleep(9 * time.Second)
@@ -88,25 +81,25 @@ func main() {
 	// 	collector.Stop()
 	// }
 
-	for _, collector := range logcollector {
-		logger.Info("Current status:", collector.GetStatus())
-	}
+	// for _, collector := range logcollector {
+	// 	logger.Info("Current status:", collector.GetStatus())
+	// }
 
-	logger.Info("Sleeping for 5 seconds after stop the collector")
-	time.Sleep(5 * time.Second)
+	// logger.Info("Sleeping for 5 seconds after stop the collector")
+	// time.Sleep(5 * time.Second)
 
-	logger.Info("Reach Wait() Exiting...")
 	wg.Wait()
-	fmt.Println("Main done. Exiting...")
+	logger.Info("Shutdown complete!")
 
 	// Add config file for all collectors - Done
 	// Config file must support the specifics of each collector, URL, File, etc - Done
 	// Error handling everywhere - Almost Done still need to test at the go routine level to catch the error during the start of the collector *** Check with Alex where we should handle it in the main or in the collector
 	// add comments - Done
 	// Add a log module - Done
+	// Use log file name from config file
 	// graceful shutdown - Done
-	// add multi site nginx support
-	// add log level
+	// add multi site nginx support - Done
+	// add log level - Done
 	// Add a test module
 	// Build the bin file
 	// Create a deployment script/deb package

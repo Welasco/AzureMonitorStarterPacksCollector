@@ -1,9 +1,12 @@
 package common
 
+// Config struct definition
+// It defines the structure of the config file
 type Config struct {
-	// Main section
+	// Main config section
 	Main struct {
-		LogPath string
+		LogPath  string
+		LogLevel string
 	}
 	// NginxCollector section
 	NginxCollector NginxCollector
@@ -11,45 +14,16 @@ type Config struct {
 	NginxCollectorWebsite NginxCollectorWebsite
 }
 
+// NginxCollector struct definition
 type NginxCollector struct {
 	LogPath string
-	// sub-section NginxCollectorWebsite
-	//NginxCollectorWebsite NginxCollectorWebsite
 }
 
+// NginxCollectorWebsite struct definition
 type NginxCollectorWebsite map[string]*WebSite
 
+// WebSite struct definition
 type WebSite struct {
 	Url               string
 	ScrapeIntervalsec int
 }
-
-// config file struct definition config_collector.ini
-// type Config struct {
-// 	// Main section
-// 	Main struct {
-// 		LogPath string
-// 	}
-// 	// NginxCollector section
-// 	NginxCollector struct {
-// 		LogPath string
-// 		// sub-section NginxCollectorWebsite
-// 		NginxCollectorWebsite map[string]*struct {
-// 			SiteName          string
-// 			Url               string
-// 			ScrapeIntervalsec int
-// 		}
-// 	}
-// }
-
-// type NginxCollectorWebsite map[string]*struct {
-// 	SiteName          string
-// 	Url               string
-// 	ScrapeIntervalsec int
-// }
-
-// type NginxCollector struct {
-// 	LogPath string
-// 	// sub-section NginxCollectorWebsite
-// 	NginxCollectorWebsite NginxCollectorWebsite
-// }
