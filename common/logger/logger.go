@@ -39,13 +39,8 @@ func Init(file string, llevel string) {
 		log.Panic(err)
 	}
 
-	//logger = log.New(logFile, "INFO: ", log.Lshortfile|log.LstdFlags)
 	l.SetOutput(logFile)
 	l.SetFlags(log.Lshortfile | log.LstdFlags)
-
-	l.Println("INIT Starting collector...")
-
-	//defer logFile.Close()
 }
 
 func Error(msg ...interface{}) {

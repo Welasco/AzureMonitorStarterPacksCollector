@@ -68,6 +68,9 @@ func main() {
 		go collector.Start(&wg)
 	}
 
+	/////////////////////////////////////////////////////////////////////////
+	// Testing code
+
 	// logger.Info("Sleeping for 11 seconds GetStatus")
 	// time.Sleep(11 * time.Second)
 	// for _, collector := range logcollector {
@@ -87,22 +90,10 @@ func main() {
 
 	// logger.Info("Sleeping for 5 seconds after stop the collector")
 	// time.Sleep(5 * time.Second)
+	/////////////////////////////////////////////////////////////////////////
 
 	wg.Wait()
 	logger.Info("Shutdown complete!")
-
-	// Add config file for all collectors - Done
-	// Config file must support the specifics of each collector, URL, File, etc - Done
-	// Error handling everywhere - Almost Done still need to test at the go routine level to catch the error during the start of the collector *** Check with Alex where we should handle it in the main or in the collector
-	// add comments - Done
-	// Add a log module - Done
-	// Use log file name from config file
-	// graceful shutdown - Done
-	// add multi site nginx support - Done
-	// add log level - Done
-	// Add a test module
-	// Build the bin file
-	// Create a deployment script/deb package
 
 }
 
@@ -113,10 +104,11 @@ func gracefulShutdown(ctx context.Context, stop context.CancelFunc, logcollector
 	// <-ctx.Done() waits for the signals (SIGTERM OR SIGQUIT) to be received and then executes the code below
 	<-ctx.Done()
 	logger.Info("Received shutdown signal...")
+	logger.Info("Stopping collectors...")
 	for _, collector := range *logcollector {
 		collector.Stop()
 	}
-	logger.Info("Shut down!")
+	logger.Info("Shutdown!")
 	stop()
 	wg.Done()
 }
