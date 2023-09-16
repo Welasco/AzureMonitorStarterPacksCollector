@@ -12,23 +12,24 @@ fi
 echo "Installing AzureMonitorStarterPacksCollector"
 
 install (){
-  if [ -d "$INSTALL_DIR" ]; then
+ 
     echo "AzureMonitorStarterPacksCollector Install"
-    mkdir $INSTALL_DIR
+    mkdir -p $INSTALL_DIR
     cd $INSTALL_DIR
-    wget https://github.com/Welasco/AzureMonitorStarterPacksCollector/archive/AzureMonitorStarterPacksCollector
+    wget https://raw.githubusercontent.com/Welasco/AzureMonitorStarterPacksCollector/main/AzureMonitorStarterPacksCollector
+    wget https://raw.githubusercontent.com/Welasco/AzureMonitorStarterPacksCollector/main/config_collector.ini
     chmod +x AzureMonitorStarterPacksCollector
 
 
     echo "AzureMonitorStarterPacksCollector Installed"
 
-  fi
+  
 }
 
 setupsystemd (){
     echo "Setting AzureMonitorStarterPacksCollector as a systemd service"
     wget https://raw.githubusercontent.com/Welasco/AzureMonitorStarterPacksCollector/main/azuremonitorstarterpackscollector.service
-    cp azuremonitorstarterpackscollector.service /lib/systemd/system
+    mv azuremonitorstarterpackscollector.service /lib/systemd/system
     if [ $? -eq 0 ]; then
         echo "Copied azuremonitorstarterpackscollector.service success"
     else
