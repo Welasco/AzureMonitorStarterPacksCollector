@@ -1,0 +1,14 @@
+[Unit]
+Description=AzureMonitorStarterPacksCollector used by AzureMonitorStarterPacks to collect data for Azure Monitor
+After=network.target
+
+[Service]
+ExecStart=/opt/azuremonitorstarterpackscollector/AzureMonitorStarterPacksCollector
+Restart=always
+User=root
+Group=root
+Environment=PATH=/usr/bin:/usr/local/bin
+WorkingDirectory=/opt/azuremonitorstarterpackscollector
+
+[Install]
+WantedBy=multi-user.target
