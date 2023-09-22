@@ -70,6 +70,46 @@ Uninstall command:
 curl -SL https://raw.githubusercontent.com/Welasco/AzureMonitorStarterPacksCollector/main/uninstall.sh | sudo -E bash -
 ```
 
+## Setup NGINX
+
+This setting must be applied to a available site in NGINX.
+
+```bash
+# Default server configuration
+#
+server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+
+        root /var/www/html;
+
+        # Add index.php to the list if you are using PHP
+        index index.html index.htm index.nginx-debian.html;
+
+        server_name _;
+
+        location / {
+                # First attempt to serve request as file, then
+                # as directory, then fall back to displaying a 404.
+                try_files $uri $uri/ =404;
+        }
+
+        location /nginx_status {
+                # Turn on stats
+                stub_status on;
+                # only allow access from 192.168.1.5 #
+                #allow 192.168.1.5;
+                #deny all;
+        }
+
+}
+```
+Reference: http://nginx.org/en/docs/http/ngx_http_stub_status_module.html
+
+Looks like there is a new module to do the same written in a API style. Need further investigation.
+
+Reference: https://nginx.org/en/docs/http/ngx_http_api_module.html
+
 ## Code reference
 
 The idea of this project was to implement a log collector using Go lang.
